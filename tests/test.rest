@@ -1,0 +1,38 @@
+PUT http://localhost:9999/user
+Content-Type: application/x-www-form-urlencoded
+
+login=service&password=secret
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
+  client.global.set("token", response.body.token);
+});
+%}
+
+### Получить платежи
+GET http://localhost:9999/user/get/payments/1
+Authorization: {{token}}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
+  client.global.set("token", response.body.token);
+});
+%}
+
+### Добавить новые платежи
+POST http://localhost:9999/service/add/prediction/1
+Content-Type: application/x-www-form-urlencoded
+Authorization: {{token}}
+
+icon=htttp://NEW&name=something&link=null
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
+  client.global.set("token", response.body.token);
+});
+%}
