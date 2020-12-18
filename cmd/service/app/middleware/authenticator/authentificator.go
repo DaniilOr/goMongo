@@ -6,7 +6,10 @@ import (
 	"net/http"
 )
 
-var ErrNoAuthentication = errors.New("no authentication")
+var (
+	ErrNoAuthentication = errors.New("no authentication")
+	ErrUserNotFound     = errors.New("user not found")
+)
 
 var AuthenticationContextKey = &contextKey{"authentication context"}
 
@@ -32,8 +35,12 @@ func Authenticator(identifier IdentifierFunc, userDetails UserDetailsFunc) func(
 			}
 
 			profile, err := userDetails(request.Context(), id)
-			if err != nil {
+			if errors.Is(err, ErrUserNotFound) {
 				writer.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			if err != nil {
+				writer.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			ctx := context.WithValue(request.Context(), AuthenticationContextKey, profile)

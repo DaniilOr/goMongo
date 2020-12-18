@@ -17,7 +17,7 @@ type contextKey struct {
 func (c *contextKey) String() string {
 	return c.name
 }
-func Identificator(handler http.Handler) http.Handler{
+func Identificator(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		token := request.Header.Get("Authorization")
 		if token != "" {

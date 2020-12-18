@@ -24,10 +24,11 @@ client.test("Request executed successfully", function() {
 
 ### Добавить новые платежи
 POST http://localhost:9999/service/add/prediction/1
-Content-Type: application/x-www-form-urlencoded
+Content-Type: application/json
 Authorization: {{token}}
 
-icon=htttp://NEW&name=something&link=null
+{"icon":"htttp:111111111", "name":"NewName", "link":"http://www.google.com"}
+
 
 > {%
 client.test("Request executed successfully", function() {

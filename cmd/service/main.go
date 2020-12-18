@@ -16,13 +16,14 @@ import (
 )
 
 const (
-	defaultPort = "9999"
-	defaultHost = "0.0.0.0"
+	defaultPort        = "9999"
+	defaultHost        = "0.0.0.0"
 	defaultClientsDB   = "db"
-	defaultClients8DSN  = "postgres://app:pass@localhost:5432/" + defaultClientsDB
-	defaultMongoDB = "predictions"
-	defaultMongoDSN  = "mongodb://app:pass@localhost:27017/" + 	defaultMongoDB
+	defaultClients8DSN = "postgres://app:pass@localhost:5432/" + defaultClientsDB
+	defaultMongoDB     = "predictions"
+	defaultMongoDSN    = "mongodb://app:pass@localhost:27017/" + defaultMongoDB
 )
+
 func main() {
 	port, ok := os.LookupEnv("APP_PORT")
 	if !ok {

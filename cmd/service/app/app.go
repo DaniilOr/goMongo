@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"strconv"
 )
+
 type Server struct {
 	securitySvc *security.Service
 	paymentsSvc *payments.Service
@@ -22,7 +23,7 @@ type Server struct {
 }
 
 func NewServer(securitySvc *security.Service, paymentsSvc *payments.Service, router chi.Router) *Server {
-	return &Server{securitySvc: securitySvc,  paymentsSvc: paymentsSvc, router: router}
+	return &Server{securitySvc: securitySvc, paymentsSvc: paymentsSvc, router: router}
 }
 
 func (s *Server) Init() error {
@@ -83,8 +84,7 @@ func (s *Server) handleLogin(writer http.ResponseWriter, request *http.Request) 
 	}
 }
 
-
-func (s*Server) handleGet(w http.ResponseWriter, r*http.Request){
+func (s *Server) handleGet(w http.ResponseWriter, r *http.Request) {
 	sid := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(sid, 10, 64)
 	if err != nil {
@@ -92,8 +92,8 @@ func (s*Server) handleGet(w http.ResponseWriter, r*http.Request){
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	frequent_payments, predicted_payments, err := s.paymentsSvc.GetPayments(r, id)
-	response := dtos.Response{Frequent_paymenys: frequent_payments, Predicted_paymenys: predicted_payments}
+	frequentPayments, predictedPayments, err := s.paymentsSvc.GetPayments(r, id)
+	response := dtos.Response{FrequentPaymenys: frequentPayments, PredictedPaymenys: predictedPayments}
 	body, err := json.Marshal(response)
 	if err != nil {
 		log.Println(err)
@@ -107,7 +107,7 @@ func (s*Server) handleGet(w http.ResponseWriter, r*http.Request){
 	}
 }
 
-func (s*Server) handleAdd(w http.ResponseWriter, r*http.Request){
+func (s *Server) handleAdd(w http.ResponseWriter, r *http.Request) {
 	sid := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(sid, 10, 64)
 	if err != nil {
@@ -115,14 +115,20 @@ func (s*Server) handleAdd(w http.ResponseWriter, r*http.Request){
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	payment := dtos.Payment{Icon: r.PostFormValue("icon"), Link: r.PostFormValue("link"), Name: r.PostFormValue("icon")}
+	var payment dtos.Payment
+	err = json.NewDecoder(r.Body).Decode(&payment)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err = s.paymentsSvc.AddPredictedPayment(r, id, payment)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	result :=  dtos.ResultDTO{Result: "added"}
+	result := dtos.ResultDTO{Result: "added"}
 	body, err := json.Marshal(result)
 	if err != nil {
 		log.Print(err)
@@ -135,4 +141,3 @@ func (s*Server) handleAdd(w http.ResponseWriter, r*http.Request){
 		log.Println(err)
 	}
 }
-

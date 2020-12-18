@@ -1,4 +1,5 @@
 package security
+
 import (
 	"context"
 	"crypto/rand"
@@ -9,11 +10,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrUserNotFound = errors.New("user not found")
+	ErrFailDB       = errors.New("DB failed")
+)
 
 const (
 	RoleService = "SERVICE"
-	RoleUser = "USER"
+	RoleUser    = "USER"
 )
 
 type Service struct {
@@ -24,7 +28,6 @@ type UserDetails struct {
 	ID    int64
 	Login string
 	Roles []string
-	// TODO: остальные поля
 }
 
 func NewService(pool *pgxpool.Pool) *Service {
@@ -46,7 +49,6 @@ func (s *Service) UserDetails(ctx context.Context, id *string) (interface{}, err
 	return details, nil
 }
 
-// Проверяет, есть ли у пользователя соответствующая роль
 func (s *Service) HasAnyRole(ctx context.Context, userDetails interface{}, roles ...string) bool {
 	details, ok := userDetails.(*UserDetails)
 	if !ok {
@@ -91,10 +93,8 @@ func (s *Service) Login(ctx context.Context, login string, password string) (*st
 
 	_, err = s.pool.Exec(ctx, `INSERT INTO tokens (id, userId) VALUES ($1, $2)`, token, userID)
 	if err != nil {
-		// в ДЗ научимся заворачивать ошибки
 		return nil, err
 	}
 
 	return &token, nil
 }
-
