@@ -57,7 +57,8 @@ func (s *Service) GetPayments(r *http.Request, id int64) ([]dtos.Payment, []dtos
 
 func (s *Service) AddPredictedPayment(r *http.Request, id int64, payment dtos.Payment) error {
 	result, err := s.db.Collection("payments").UpdateOne(r.Context(), bson.M{"user_id": id}, bson.D{
-		{"$push", bson.D{{"predicted_payments", bson.D{{"icon", payment.Icon}, {"name", payment.Name}, {"link", payment.Link}}}}}})
+		{"$push", bson.D{{"predicted_payments", bson.D{{"icon", payment.Icon},
+			{"name", payment.Name}, {"link", payment.Link}}}}}})
 	if err != nil {
 		return err
 	}
