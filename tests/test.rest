@@ -11,19 +11,18 @@ client.test("Request executed successfully", function() {
 %}
 
 ### Получить платежи
-GET http://localhost:9999/user/get/payments/1
+GET http://localhost:9999//user/get/suggestions/1
 Authorization: {{token}}
 
 > {%
 client.test("Request executed successfully", function() {
   client.assert(response.status === 200, "Response status is not 200");
   client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
-  client.global.set("token", response.body.token);
 });
 %}
 
 ### Добавить новые платежи
-POST http://localhost:9999/service/add/prediction/1
+POST http://localhost:9999/service/add/suggestion/1
 Content-Type: application/json
 Authorization: {{token}}
 
@@ -35,5 +34,29 @@ client.test("Request executed successfully", function() {
   client.assert(response.status === 200, "Response status is not 200");
   client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
   client.global.set("token", response.body.token);
+});
+%}
+
+### Новый пользователь
+PUT http://localhost:9999/user
+Content-Type: application/x-www-form-urlencoded
+
+login=user&password=secret
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
+  client.global.set("token", response.body.token);
+});
+%}
+
+### Получить платежи
+GET http://localhost:9999//user/get/suggestions/2
+Authorization: {{token}}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.contentType.mimeType === "application/json", "Expected 'application/json' but received '" + response.contentType.mimeType + "'");
 });
 %}

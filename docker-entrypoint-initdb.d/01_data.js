@@ -1,7 +1,7 @@
-db.payments.insertOne(
+db.suggestions.insertOne(
     {
         user_id: 1,
-        frequent_payments: [
+        suggested_payments: [
             {
                 icon: "http://icon2.html",
                 name: "Yota",
@@ -13,12 +13,22 @@ db.payments.insertOne(
                 link: "http://link3,html"
             },
         ],
-        predicted_payments: [
+    }
+)
+db.suggestions.insertOne(
+    {
+        user_id: 2,
+        suggested_payments: [
             {
-                icon: "http://icon1.html",
-                name: "Tinkoff",
-                link: "http://link1,html"
+                icon: "http://somepick.html",
+                name: "Tele2",
+                link: "http://somelink,html"
             },
-        ]
+            {
+                icon: "http://newpick.html",
+                name: "Beeline",
+                link: "http://somelink,html"
+            },
+        ],
     }
 )

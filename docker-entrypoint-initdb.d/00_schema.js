@@ -8,13 +8,12 @@ db.createUser({
         }
     ]
 });
-db.createCollection('payments', {
+db.createCollection('suggestions', {
     validator: {
         $jsonSchema: {
             bsonType: 'Object',
-            required: ['user_id', 'frequent_payments', 'predicted_payments'],
-            frequent_payments: {
-                payments: {
+            required: ['user_id', 'suggested_payments'],
+            suggested_payments: {
                     bsonType: 'Object',
                     required: ['icon', 'name', 'link'],
                     properties: {
@@ -28,24 +27,6 @@ db.createCollection('payments', {
                             bsonType: "string",
                         }
                     }
-                }
-            },
-            predicted_payments: {
-                payments: {
-                    bsonType: 'Object',
-                    required: ['icon', 'name', 'link'],
-                    properties: {
-                        icon: {
-                            bsonType: "string",
-                        },
-                        name: {
-                            bsonType: "string",
-                        },
-                        link: {
-                            bsonType: "string",
-                        }
-                    }
-                }
             }
         }
     }

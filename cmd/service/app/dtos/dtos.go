@@ -19,6 +19,5 @@ type ResultDTO struct {
 	Description string `json:"description,omitempty"`
 }
 type Response struct {
-	FrequentPaymenys  []Payment `json:"frequent_payments"`
-	PredictedPaymenys []Payment `json:"predicted_payments"`
+	SuggestedPayments []Payment `json:"suggested_payments" bson:"suggested_payments"`
 }
