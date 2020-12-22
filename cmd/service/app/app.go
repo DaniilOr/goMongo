@@ -3,18 +3,16 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"github.com/DaniilOr/goMongo/cmd/service/app/dtos"
 	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/authenticator"
 	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/authorizator"
+	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/cacher"
 	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/identificator"
 	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/logger"
-	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/cacher"
 	"github.com/DaniilOr/goMongo/pkg/cache"
 	"github.com/DaniilOr/goMongo/pkg/payments"
 	"github.com/DaniilOr/goMongo/pkg/security"
 	"github.com/go-chi/chi"
-	"github.com/gomodule/redigo/redis"
 	"log"
 	"net/http"
 	"strconv"
@@ -47,15 +45,7 @@ func (s *Server) Init() error {
 	serviceRoleMd := authorizator.Authorizator(roleChecker, security.RoleService)
 	userRoleMd := authorizator.Authorizator(roleChecker, security.RoleUser)
 	logger := logger.Logger
-	cacher := cacher.Cache(func(ctx context.Context, path string) ([]byte, error) {
-		value, err := s.cacheSvc.FromCache(ctx, path)
-		if err != nil && errors.Is(err, redis.ErrNil) {
-			return nil, cacher.ErrNotInCache
-		}
-		return value, err
-	}, func(ctx context.Context, path string, data []byte) error {
-		return s.cacheSvc.ToCache(context.Background(), path, data)
-	})
+	cacher := cacher.Cache(s.cacheSvc.FromCache, s.cacheSvc.ToCache)
 	s.router.With(identificatorMd, authenticatorMd, serviceRoleMd, logger).Post("/service/add/suggestion/{id}", s.handleAdd)
 	s.router.With(identificatorMd, authenticatorMd, userRoleMd, logger, cacher).Get("/user/get/suggestions/{id}", s.handleGet)
 	return nil

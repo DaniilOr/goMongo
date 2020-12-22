@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	"github.com/DaniilOr/goMongo/cmd/service/app/middleware/authenticator"
+	"github.com/DaniilOr/goMongo/pkg/security"
 	"log"
 	"net/http"
 )
@@ -41,9 +44,10 @@ func (c *cachedResponseWriter) WriteHeader(statusCode int) {
 func Cache(fromCache FromCacheFunc, toCache ToCacheFunc) func(handler http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			data, err := fromCache(request.Context(), request.RequestURI)
+			data, err := fromCache(request.Context(), fmt.Sprintf("user:%d:suggestions", request.Context().Value(authenticator.AuthenticationContextKey)))
 			if err == nil {
-				log.Printf("Got from cache: %s", request.RequestURI)
+				val := request.Context().Value(authenticator.AuthenticationContextKey).(*security.UserDetails)
+				log.Printf("Got from cache: %s", fmt.Sprintf("user:%d:suggestions", val.ID))
 				// для наглядности указали так, но лучше передать третью функцию, которая будет писать ответ
 				writer.Header().Set("Content-Type", "application/json")
 				_, err = writer.Write(data)
@@ -60,7 +64,8 @@ func Cache(fromCache FromCacheFunc, toCache ToCacheFunc) func(handler http.Handl
 			handler.ServeHTTP(cachedWriter, request)
 
 			go func() {
-				err = toCache(context.Background(), request.RequestURI, cachedWriter.buffer.Bytes())
+				val := request.Context().Value(authenticator.AuthenticationContextKey).(*security.UserDetails)
+				err = toCache(context.Background(),fmt.Sprintf("user:%d:suggestions", val.ID), cachedWriter.buffer.Bytes())
 				if err != nil {
 					log.Print(err)
 				}
